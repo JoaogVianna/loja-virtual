@@ -3,6 +3,7 @@ import api from './services/api';
 import Login from './components/Login';
 import CadastroProduto from './components/CadastroProduto';
 import './App.css';
+import MeusPedidos from './components/MeusPedidos';
 
 function App() {
   const [produtos, setProdutos] = useState([]);
@@ -57,6 +58,7 @@ function App() {
 
       {!usuario && <Login onLoginSuccess={handleLoginSuccess} />}
       {usuario && <CadastroProduto onProdutoCriado={handleProdutoCriado} />}
+      {usuario && <MeusPedidos />}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
         {produtos.map((produto) => (

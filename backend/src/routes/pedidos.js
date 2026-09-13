@@ -83,9 +83,12 @@ router.post('/', autenticar, async (req, res) => {
 });
 
 // Listar pedidos com seus itens
-router.get('/', async (req, res) => {
+router.get('/', autenticar, async (req, res) => {
   try {
-    const pedidos = await pool.query('SELECT * FROM pedidos ORDER BY id');
+    const pedidos = await pool.query(
+      'SELECT * FROM pedidos WHERE usuario_id = $1 ORDER BY id DESC',
+      [req.usuario.id]
+    );
     res.json(pedidos.rows);
   } catch (err) {
     res.status(500).json({ erro: err.message });
