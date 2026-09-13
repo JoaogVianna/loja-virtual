@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import api from './services/api';
+import Login from './components/Login';
 import './App.css';
 
 function App() {
   const [produtos, setProdutos] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
+  const [usuario, setUsuario] = useState(null);
 
   useEffect(() => {
     api.get('/produtos')
@@ -20,12 +22,32 @@ function App() {
       });
   }, []);
 
+  const handleLoginSuccess = (usuarioLogado) => {
+    setUsuario(usuarioLogado);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setUsuario(null);
+  };
+
   if (carregando) return <p>Carregando produtos...</p>;
   if (erro) return <p>{erro}</p>;
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
-      <h1>Loja Virtual</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h1>Loja Virtual</h1>
+        {usuario ? (
+          <div>
+            <span>Olá, {usuario.nome}! </span>
+            <button onClick={handleLogout}>Sair</button>
+          </div>
+        ) : null}
+      </div>
+
+      {!usuario && <Login onLoginSuccess={handleLoginSuccess} />}
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
         {produtos.map((produto) => (
           <div key={produto.id} style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '16px' }}>

@@ -33,5 +33,5 @@ const authRoutes = require('./routes/auth');
 app.use('/auth', authRoutes);
 
 
-const PORT = 3001   ;
+const PORT = 3002   ;
 app.listen(PORT, () => console.log(`Servidor rodando em http://localhost:${PORT}`));
