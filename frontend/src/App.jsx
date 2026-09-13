@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from './services/api';
 import Login from './components/Login';
+import CadastroProduto from './components/CadastroProduto';
 import './App.css';
 
 function App() {
@@ -9,7 +10,7 @@ function App() {
   const [erro, setErro] = useState(null);
   const [usuario, setUsuario] = useState(null);
 
-  useEffect(() => {
+  const carregarProdutos = () => {
     api.get('/produtos')
       .then((response) => {
         setProdutos(response.data);
@@ -20,6 +21,10 @@ function App() {
         setCarregando(false);
         console.error(err);
       });
+  };
+
+  useEffect(() => {
+    carregarProdutos();
   }, []);
 
   const handleLoginSuccess = (usuarioLogado) => {
@@ -29,6 +34,10 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     setUsuario(null);
+  };
+
+  const handleProdutoCriado = () => {
+    carregarProdutos();
   };
 
   if (carregando) return <p>Carregando produtos...</p>;
@@ -47,6 +56,7 @@ function App() {
       </div>
 
       {!usuario && <Login onLoginSuccess={handleLoginSuccess} />}
+      {usuario && <CadastroProduto onProdutoCriado={handleProdutoCriado} />}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
         {produtos.map((produto) => (
