@@ -2,14 +2,18 @@ import { useState, useEffect } from 'react';
 import api from './services/api';
 import Login from './components/Login';
 import CadastroProduto from './components/CadastroProduto';
-import './App.css';
 import MeusPedidos from './components/MeusPedidos';
+import Carrinho from './components/Carrinho';
+import { getIconePorCategoria } from './utils/icones';
+import './App.css';
 
 function App() {
   const [produtos, setProdutos] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
   const [usuario, setUsuario] = useState(null);
+  const [itensCarrinho, setItensCarrinho] = useState([]);
+  const [chaveMeusPedidos, setChaveMeusPedidos] = useState(0); // força recarregar pedidos
 
   const carregarProdutos = () => {
     api.get('/produtos')
@@ -41,6 +45,27 @@ function App() {
     carregarProdutos();
   };
 
+  const adicionarAoCarrinho = (produto) => {
+    setItensCarrinho((atual) => {
+      const existente = atual.find((item) => item.id === produto.id);
+      if (existente) {
+        return atual.map((item) =>
+          item.id === produto.id ? { ...item, quantidade: item.quantidade + 1 } : item
+        );
+      }
+      return [...atual, { id: produto.id, nome: produto.nome, preco: parseFloat(produto.preco), quantidade: 1 }];
+    });
+  };
+
+  const removerDoCarrinho = (produtoId) => {
+    setItensCarrinho((atual) => atual.filter((item) => item.id !== produtoId));
+  };
+
+  const handleCompraFinalizada = () => {
+    setItensCarrinho([]);
+    setChaveMeusPedidos((k) => k + 1); // força o MeusPedidos recarregar
+  };
+
   if (carregando) return <p>Carregando produtos...</p>;
   if (erro) return <p>{erro}</p>;
 
@@ -58,17 +83,32 @@ function App() {
 
       {!usuario && <Login onLoginSuccess={handleLoginSuccess} />}
       {usuario && <CadastroProduto onProdutoCriado={handleProdutoCriado} />}
-      {usuario && <MeusPedidos />}
+
+      <Carrinho
+        itens={itensCarrinho}
+        onRemover={removerDoCarrinho}
+        onFinalizado={handleCompraFinalizada}
+        usuario={usuario}
+      />
+
+      {usuario && <MeusPedidos key={chaveMeusPedidos} />}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
-        {produtos.map((produto) => (
-          <div key={produto.id} style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '16px' }}>
-            <h3>{produto.nome}</h3>
-            <p>{produto.descricao}</p>
-            <p><strong>R$ {produto.preco}</strong></p>
-            <p style={{ fontSize: '0.85em', color: '#666' }}>{produto.categoria_nome}</p>
-          </div>
-        ))}
+    {produtos.map((produto) => {
+  const Icone = getIconePorCategoria(produto.categoria_nome);
+  return (
+    <div key={produto.id} style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '16px' }}>
+      <Icone size={32} style={{ marginBottom: '8px' }} />
+      <h3>{produto.nome}</h3>
+      <p>{produto.descricao}</p>
+      <p><strong>R$ {produto.preco}</strong></p>
+      <p style={{ fontSize: '0.85em', color: '#666' }}>{produto.categoria_nome}</p>
+      <button onClick={() => adicionarAoCarrinho(produto)} style={{ width: '100%', padding: '8px', marginTop: '8px' }}>
+        Adicionar ao carrinho
+      </button>
+    </div>
+  );
+})}
       </div>
     </div>
   );
