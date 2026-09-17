@@ -52,71 +52,37 @@ function CadastroProduto({ onProdutoCriado }) {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '20px auto', padding: '20px', border: '1px solid #444', borderRadius: '8px' }}>
+    <div className="card card-form">
       <h2>Cadastrar Produto</h2>
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '12px' }}>
+        <div className="campo">
           <label>Nome *</label>
-          <input
-            type="text"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            required
-            style={{ width: '100%', padding: '8px', marginTop: '4px' }}
-          />
+          <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} required />
         </div>
-
-        <div style={{ marginBottom: '12px' }}>
+        <div className="campo">
           <label>Descrição</label>
-          <textarea
-            value={descricao}
-            onChange={(e) => setDescricao(e.target.value)}
-            style={{ width: '100%', padding: '8px', marginTop: '4px' }}
-          />
+          <textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} />
         </div>
-
-        <div style={{ marginBottom: '12px' }}>
+        <div className="campo">
           <label>Preço (R$) *</label>
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            value={preco}
-            onChange={(e) => setPreco(e.target.value)}
-            required
-            style={{ width: '100%', padding: '8px', marginTop: '4px' }}
-          />
+          <input type="number" step="0.01" min="0" value={preco} onChange={(e) => setPreco(e.target.value)} required />
         </div>
-
-        <div style={{ marginBottom: '12px' }}>
+        <div className="campo">
           <label>Categoria</label>
-          <select
-            value={categoriaId}
-            onChange={(e) => setCategoriaId(e.target.value)}
-            style={{ width: '100%', padding: '8px', marginTop: '4px' }}
-          >
+          <select value={categoriaId} onChange={(e) => setCategoriaId(e.target.value)}>
             <option value="">Sem categoria</option>
             {categorias.map((cat) => (
               <option key={cat.id} value={cat.id}>{cat.nome}</option>
             ))}
           </select>
         </div>
-
-        <div style={{ marginBottom: '12px' }}>
+        <div className="campo">
           <label>Estoque inicial</label>
-          <input
-            type="number"
-            min="0"
-            value={quantidadeInicial}
-            onChange={(e) => setQuantidadeInicial(e.target.value)}
-            style={{ width: '100%', padding: '8px', marginTop: '4px' }}
-          />
+          <input type="number" min="0" value={quantidadeInicial} onChange={(e) => setQuantidadeInicial(e.target.value)} />
         </div>
-
-        {erro && <p style={{ color: 'red' }}>{erro}</p>}
-        {sucesso && <p style={{ color: 'lightgreen' }}>Produto cadastrado com sucesso!</p>}
-
-        <button type="submit" disabled={carregando} style={{ width: '100%', padding: '10px' }}>
+        {erro && <p className="msg-erro">{erro}</p>}
+        {sucesso && <p className="msg-sucesso">Produto cadastrado com sucesso!</p>}
+        <button type="submit" className="btn-primary" disabled={carregando}>
           {carregando ? 'Cadastrando...' : 'Cadastrar Produto'}
         </button>
       </form>

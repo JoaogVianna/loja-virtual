@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import api from '../services/api';
 
-function Login({ onLoginSuccess }) {
+function Login({ onLoginSuccess, onIrParaCadastro }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState(null);
@@ -15,10 +15,7 @@ function Login({ onLoginSuccess }) {
     try {
       const response = await api.post('/auth/login', { email, senha });
       const { token, usuario } = response.data;
-
-      // Guarda o token para usar em requisições futuras
       localStorage.setItem('token', token);
-
       onLoginSuccess(usuario, token);
     } catch (err) {
       setErro(err.response?.data?.erro || 'Erro ao fazer login');
@@ -28,34 +25,28 @@ function Login({ onLoginSuccess }) {
   };
 
   return (
-    <div style={{ maxWidth: '320px', margin: '40px auto', padding: '20px', border: '1px solid #444', borderRadius: '8px' }}>
+    <div className="card card-form">
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '12px' }}>
+        <div className="campo">
           <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{ width: '100%', padding: '8px', marginTop: '4px' }}
-          />
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </div>
-        <div style={{ marginBottom: '12px' }}>
+        <div className="campo">
           <label>Senha</label>
-          <input
-            type="password"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            required
-            style={{ width: '100%', padding: '8px', marginTop: '4px' }}
-          />
+          <input type="password" value={senha} onChange={(e) => setSenha(e.target.value)} required />
         </div>
-        {erro && <p style={{ color: 'red' }}>{erro}</p>}
-        <button type="submit" disabled={carregando} style={{ width: '100%', padding: '10px' }}>
+        {erro && <p className="msg-erro">{erro}</p>}
+        <button type="submit" className="btn-primary" disabled={carregando}>
           {carregando ? 'Entrando...' : 'Entrar'}
         </button>
       </form>
+      {onIrParaCadastro && (
+        <p style={{ marginTop: '12px', textAlign: 'center' }}>
+          Ainda não tem conta?{' '}
+          <button type="button" className="btn-link" onClick={onIrParaCadastro}>Cadastre-se</button>
+        </p>
+      )}
     </div>
   );
 }

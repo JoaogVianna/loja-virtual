@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from './services/api';
 import Login from './components/Login';
+import Cadastro from './components/Cadastro';
 import CadastroProduto from './components/CadastroProduto';
 import MeusPedidos from './components/MeusPedidos';
 import Carrinho from './components/Carrinho';
@@ -13,7 +14,8 @@ function App() {
   const [erro, setErro] = useState(null);
   const [usuario, setUsuario] = useState(null);
   const [itensCarrinho, setItensCarrinho] = useState([]);
-  const [chaveMeusPedidos, setChaveMeusPedidos] = useState(0); // força recarregar pedidos
+  const [chaveMeusPedidos, setChaveMeusPedidos] = useState(0);
+  const [telaAuth, setTelaAuth] = useState('login');
 
   const carregarProdutos = () => {
     api.get('/produtos')
@@ -32,18 +34,19 @@ function App() {
     carregarProdutos();
   }, []);
 
-  const handleLoginSuccess = (usuarioLogado) => {
-    setUsuario(usuarioLogado);
-  };
+  const handleLoginSuccess = (usuarioLogado) => setUsuario(usuarioLogado);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     setUsuario(null);
   };
 
-  const handleProdutoCriado = () => {
-    carregarProdutos();
+  const handleCadastroSuccess = (email) => {
+    setTelaAuth('login');
+    alert(`Conta criada com sucesso para ${email}! Faça login.`);
   };
+
+  const handleProdutoCriado = () => carregarProdutos();
 
   const adicionarAoCarrinho = (produto) => {
     setItensCarrinho((atual) => {
@@ -63,25 +66,31 @@ function App() {
 
   const handleCompraFinalizada = () => {
     setItensCarrinho([]);
-    setChaveMeusPedidos((k) => k + 1); // força o MeusPedidos recarregar
+    setChaveMeusPedidos((k) => k + 1);
   };
 
-  if (carregando) return <p>Carregando produtos...</p>;
-  if (erro) return <p>{erro}</p>;
+  if (carregando) return <p className="container">Carregando produtos...</p>;
+  if (erro) return <p className="container msg-erro">{erro}</p>;
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="container">
+      <div className="header">
         <h1>Loja Virtual</h1>
-        {usuario ? (
-          <div>
-            <span>Olá, {usuario.nome}! </span>
-            <button onClick={handleLogout}>Sair</button>
+        {usuario && (
+          <div className="usuario-info">
+            <span>Olá, {usuario.nome}!</span>
+            <button className="btn-secondary" onClick={handleLogout}>Sair</button>
           </div>
-        ) : null}
+        )}
       </div>
 
-      {!usuario && <Login onLoginSuccess={handleLoginSuccess} />}
+      {!usuario && telaAuth === 'login' && (
+        <Login onLoginSuccess={handleLoginSuccess} onIrParaCadastro={() => setTelaAuth('cadastro')} />
+      )}
+      {!usuario && telaAuth === 'cadastro' && (
+        <Cadastro onCadastroSuccess={handleCadastroSuccess} />
+      )}
+
       {usuario && <CadastroProduto onProdutoCriado={handleProdutoCriado} />}
 
       <Carrinho
@@ -93,22 +102,22 @@ function App() {
 
       {usuario && <MeusPedidos key={chaveMeusPedidos} />}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
-    {produtos.map((produto) => {
-  const Icone = getIconePorCategoria(produto.categoria_nome);
-  return (
-    <div key={produto.id} style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '16px' }}>
-      <Icone size={32} style={{ marginBottom: '8px' }} />
-      <h3>{produto.nome}</h3>
-      <p>{produto.descricao}</p>
-      <p><strong>R$ {produto.preco}</strong></p>
-      <p style={{ fontSize: '0.85em', color: '#666' }}>{produto.categoria_nome}</p>
-      <button onClick={() => adicionarAoCarrinho(produto)} style={{ width: '100%', padding: '8px', marginTop: '8px' }}>
-        Adicionar ao carrinho
-      </button>
-    </div>
-  );
-})}
+      <div className="produtos-grid">
+        {produtos.map((produto) => {
+          const Icone = getIconePorCategoria(produto.categoria_nome);
+          return (
+            <div key={produto.id} className="produto-card">
+              <Icone size={32} className="produto-icone" />
+              <h3>{produto.nome}</h3>
+              <p className="produto-descricao">{produto.descricao}</p>
+              <p className="produto-preco">R$ {produto.preco}</p>
+              <p className="produto-categoria">{produto.categoria_nome}</p>
+              <button className="btn-primary" onClick={() => adicionarAoCarrinho(produto)}>
+                Adicionar ao carrinho
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
