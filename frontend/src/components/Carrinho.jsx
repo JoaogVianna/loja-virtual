@@ -15,7 +15,10 @@ function Carrinho({ itens, onRemover, onFinalizado, usuario }) {
 
     try {
       const payload = {
-        itens: itens.map((item) => ({ produto_id: item.id, quantidade: item.quantidade })),
+        itens: itens.map((item) => ({
+          produto_id: item.id,
+          quantidade: item.quantidade,
+        })),
       };
       const response = await api.post('/pedidos', payload);
       setSucesso(`Pedido #${response.data.id} confirmado! Total: R$ ${response.data.total}`);
@@ -27,34 +30,42 @@ function Carrinho({ itens, onRemover, onFinalizado, usuario }) {
     }
   };
 
-  if (itens.length === 0 && !sucesso) return null;
+  if (itens.length === 0 && !sucesso) {
+    return null;
+  }
 
   return (
-    <div className="card">
+    <div style={{ border: '1px solid #444', borderRadius: '8px', padding: '16px', margin: '20px 0' }}>
       <h2>Carrinho</h2>
+
       {itens.length > 0 && (
         <>
           {itens.map((item) => (
-            <div key={item.id} className="carrinho-item">
+            <div
+              key={item.id}
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid #333' }}
+            >
               <span>{item.nome} x{item.quantidade}</span>
               <span>
                 R$ {(item.preco * item.quantidade).toFixed(2)}
-                <button className="btn-danger" onClick={() => onRemover(item.id)} style={{ marginLeft: '10px' }}>Remover</button>
+                <button onClick={() => onRemover(item.id)} style={{ marginLeft: '10px' }}>Remover</button>
               </span>
             </div>
           ))}
-          <p className="carrinho-total">Total: R$ {total.toFixed(2)}</p>
+          <p style={{ marginTop: '10px' }}><strong>Total: R$ {total.toFixed(2)}</strong></p>
+
           {!usuario ? (
-            <p className="msg-erro">Faça login para finalizar a compra.</p>
+            <p style={{ color: 'orange' }}>Faça login para finalizar a compra.</p>
           ) : (
-            <button className="btn-primary" onClick={finalizarCompra} disabled={carregando}>
+            <button onClick={finalizarCompra} disabled={carregando} style={{ width: '100%', padding: '10px' }}>
               {carregando ? 'Finalizando...' : 'Finalizar Compra'}
             </button>
           )}
         </>
       )}
-      {erro && <p className="msg-erro">{erro}</p>}
-      {sucesso && <p className="msg-sucesso">{sucesso}</p>}
+
+      {erro && <p style={{ color: 'red' }}>{erro}</p>}
+      {sucesso && <p style={{ color: 'lightgreen' }}>{sucesso}</p>}
     </div>
   );
 }

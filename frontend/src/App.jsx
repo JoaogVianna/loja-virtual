@@ -6,6 +6,7 @@ import CadastroProduto from './components/CadastroProduto';
 import MeusPedidos from './components/MeusPedidos';
 import Carrinho from './components/Carrinho';
 import { getIconePorCategoria } from './utils/icones';
+import Categorias from './components/Categorias';
 import './App.css';
 
 function App() {
@@ -92,6 +93,7 @@ function App() {
       )}
 
       {usuario && <CadastroProduto onProdutoCriado={handleProdutoCriado} />}
+      {usuario && <Categorias />}
 
       <Carrinho
         itens={itensCarrinho}
