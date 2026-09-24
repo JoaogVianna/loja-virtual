@@ -6,10 +6,10 @@ const autenticar = require('../middleware/auth');
 router.get('/', async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT p.id, p.nome, p.descricao, p.preco, p.categoria_id, c.nome AS categoria_nome
-      FROM produtos p
-      LEFT JOIN categorias c ON p.categoria_id = c.id
-      ORDER BY p.id
+      SELECT p.id, p.nome, p.descricao, p.preco, p.categoria_id, p.imagem_url, c.nome AS categoria_nome
+FROM produtos p
+LEFT JOIN categorias c ON p.categoria_id = c.id
+ORDER BY p.id
     `);
     res.json(result.rows);
   } catch (err) {
@@ -31,7 +31,12 @@ router.get('/:id', async (req, res) => {
 });
 
 router.post('/', autenticar, async (req, res) => {
-  const { nome, descricao, preco, categoria_id, quantidade_inicial } = req.body;
+  const { nome, descricao, preco, categoria_id, quantidade_inicial, imagem_url } = req.body;
+  const produtoResult = await client.query(
+  `INSERT INTO produtos (nome, descricao, preco, categoria_id)
+   VALUES ($1, $2, $3, $4) RETURNING *`,
+  [nome, descricao || null, preco, categoria_id || null]
+);
 
   if (!nome || preco === undefined) {
     return res.status(400).json({ erro: 'Nome e preço são obrigatórios' });

@@ -1,63 +1,65 @@
 const pool = require('./db/pool');
 
+const CATEGORIAS_ELETRONICOS = ['smartphones', 'laptops', 'tablets', 'mobile-accessories'];
+
 async function popularBanco() {
-  console.log('Buscando produtos da FakeStoreAPI...');
+  console.log('Buscando produtos da DummyJSON...');
 
-  const response = await fetch('https://fakestoreapi.com/products');
-  const produtosApi = await response.json();
-
-  console.log(`${produtosApi.length} produtos encontrados.`);
-
-  // 1. Extrai categorias únicas
-  const nomesCategorias = [...new Set(produtosApi.map((p) => p.category))];
   const mapaCategorias = {};
 
-  for (const nome of nomesCategorias) {
-    // Verifica se já existe
-    const existente = await pool.query('SELECT id FROM categorias WHERE nome = $1', [nome]);
+  for (const categoriaApi of CATEGORIAS_ELETRONICOS) {
+    const response = await fetch(`https://dummyjson.com/products/category/${categoriaApi}`);
+    const data = await response.json();
+    const produtosApi = data.products;
 
-    if (existente.rowCount > 0) {
-      mapaCategorias[nome] = existente.rows[0].id;
-    } else {
+    console.log(`\nCategoria "${categoriaApi}": ${produtosApi.length} produtos`);
+
+    // Cria a categoria se não existir
+    if (!mapaCategorias[categoriaApi]) {
+      const nomeExibicao = categoriaApi
+        .replace('-', ' ')
+        .replace(/\b\w/g, (l) => l.toUpperCase());
+
       const result = await pool.query(
         'INSERT INTO categorias (nome) VALUES ($1) RETURNING id',
-        [nome]
+        [nomeExibicao]
       );
-      mapaCategorias[nome] = result.rows[0].id;
-      console.log(`Categoria criada: ${nome}`);
+      mapaCategorias[categoriaApi] = result.rows[0].id;
+      console.log(`Categoria criada: ${nomeExibicao}`);
+    }
+
+    for (const produto of produtosApi) {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+
+        const nomeCompleto = produto.brand ? `${produto.brand} ${produto.title}` : produto.title;
+
+        const produtoResult = await client.query(
+          `INSERT INTO produtos (nome, descricao, preco, categoria_id, imagem_url)
+           VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+          [nomeCompleto, produto.description, produto.price, mapaCategorias[categoriaApi], produto.thumbnail]
+        );
+
+        const produtoId = produtoResult.rows[0].id;
+
+        await client.query(
+          `INSERT INTO estoque (produto_id, quantidade) VALUES ($1, $2)`,
+          [produtoId, produto.stock || 10]
+        );
+
+        await client.query('COMMIT');
+        console.log(`  Produto criado: ${nomeCompleto} - $${produto.price}`);
+      } catch (err) {
+        await client.query('ROLLBACK');
+        console.error(`  Erro ao criar produto ${produto.title}:`, err.message);
+      } finally {
+        client.release();
+      }
     }
   }
 
-  // 2. Insere os produtos
-  for (const produto of produtosApi) {
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-
-      const produtoResult = await client.query(
-        `INSERT INTO produtos (nome, descricao, preco, categoria_id)
-         VALUES ($1, $2, $3, $4) RETURNING id`,
-        [produto.title, produto.description, produto.price, mapaCategorias[produto.category]]
-      );
-
-      const produtoId = produtoResult.rows[0].id;
-
-      await client.query(
-        `INSERT INTO estoque (produto_id, quantidade) VALUES ($1, $2)`,
-        [produtoId, Math.floor(Math.random() * 50) + 10] // estoque aleatório entre 10 e 60
-      );
-
-      await client.query('COMMIT');
-      console.log(`Produto criado: ${produto.title}`);
-    } catch (err) {
-      await client.query('ROLLBACK');
-      console.error(`Erro ao criar produto ${produto.title}:`, err.message);
-    } finally {
-      client.release();
-    }
-  }
-
-  console.log('Povoamento concluído!');
+  console.log('\nPovoamento concluído!');
   process.exit(0);
 }
 
