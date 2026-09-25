@@ -75,4 +75,4 @@ _(adicione aqui prints da tela de produtos, login e carrinho)_
 
 ## 👤 Autor
 
-João Vianna
+João Gabriel Vianna

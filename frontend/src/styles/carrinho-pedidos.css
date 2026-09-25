@@ -1,0 +1,38 @@
+.carrinho-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.carrinho-item:last-child {
+  border-bottom: 0;
+}
+
+.carrinho-total {
+  margin: 18px 0;
+  color: var(--text);
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+.pedido-item {
+  padding: 15px;
+  margin-bottom: 10px;
+  background: var(--input);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+}
+
+.pedido-item p {
+  margin: 3px 0;
+}
+
+.pedido-data {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
