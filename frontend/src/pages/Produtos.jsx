@@ -4,7 +4,6 @@ import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useCarrinho } from '../context/CarrinhoContext';
 import { useToast } from '../context/ToastContext';
-import CadastroProduto from '../components/CadastroProduto';
 import ConfirmModal from '../components/ConfirmModal';
 import EditarProduto from '../components/EditarProduto';
 import Hero from '../components/Hero';
@@ -113,7 +112,6 @@ function Produtos() {
     <main className="home-page">
       <Hero produtos={produtos} />
 
-      {usuario && <CadastroProduto onProdutoCriado={carregarProdutos} />}
 
       {produtoEditando && (
         <EditarProduto

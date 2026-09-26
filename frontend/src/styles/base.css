@@ -15,7 +15,10 @@ body {
   line-height: 1.5;
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   font: inherit;
 }
 
@@ -40,15 +43,24 @@ button:disabled {
 }
 
 .container {
-  width: 100%;
+  width: min(100% - 40px, 1550px);
   margin: 0 auto;
-  padding: 0 0 0;
+  padding-bottom: 60px;
 }
 
-a { color: inherit; }
+a {
+  color: inherit;
+}
 
-.home-page { width: min(100% - 48px, 1156px); margin: 0 auto; }
-.home-loading { padding: 38px 0; color: var(--text-secondary); }
+.home-page {
+  width: min(100% - 40px, 1550px);
+  margin: 0 auto;
+}
+
+.home-loading {
+  padding: 38px 0;
+  color: var(--text-secondary);
+}
 
 ::-webkit-scrollbar {
   width: 7px;
