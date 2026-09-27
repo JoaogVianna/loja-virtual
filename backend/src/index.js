@@ -32,6 +32,9 @@ app.use('/pedidos', pedidosRoutes);
 const authRoutes = require('./routes/auth');
 app.use('/auth', authRoutes);
 
+const relatoriosRoutes = require('./routes/relatorios');
+app.use('/relatorios', relatoriosRoutes);
+
 
 const PORT = 3002   ;
 app.listen(PORT, () => console.log(`Servidor rodando em http://localhost:${PORT}`));

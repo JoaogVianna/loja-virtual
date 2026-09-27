@@ -10,6 +10,7 @@ import CategoriasPage from './pages/CategoriasPage';
 import ProdutoDetalhes from './pages/ProdutoDetalhes';
 import Checkout from './pages/Checkout';
 import './App.css';
+import Relatorios from './pages/Relatorios';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
       <div className="container">
         <NavBar />
         <Routes>
+          <Route path="/relatorios" element={<Relatorios />} />
           <Route path="/produtos/novo" element={<NovoProduto />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/" element={<Produtos />} />
